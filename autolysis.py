@@ -10,13 +10,7 @@
 # ]
 # ///
 
-# /// script
-# dependencies = [
-#   "httpx",
-#   "pandas",
-#   "seaborn",
-# ]
-# ///
+
 import os
 import pandas as pd
 import seaborn as sns
