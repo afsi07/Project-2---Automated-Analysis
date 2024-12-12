@@ -6,7 +6,6 @@
 #   "scipy",
 #   "matplotlib",
 #   "numpy",
-#   "tabulate",
 # ]
 # ///
 import os
