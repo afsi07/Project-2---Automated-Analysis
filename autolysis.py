@@ -89,7 +89,7 @@ def create_missing_value_barplot(df, output_file):
 
     # Create the barplot
     plt.figure(figsize=(12, 6))
-    sns.barplot(x=missing_counts.index, y=missing_counts.values, palette="viridis")
+    sns.barplot(x=missing_counts.index, y=missing_counts.values, hue=missing_counts.index, palette="viridis", legend=False)
     plt.xticks(rotation=45)
     plt.xlabel("Columns")
     plt.ylabel("Number of Missing Values")
