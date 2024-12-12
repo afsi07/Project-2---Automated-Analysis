@@ -6,6 +6,7 @@
 #   "scipy",
 #   "matplotlib",
 #   "numpy",
+#   "tabulate",
 # ]
 # ///
 import os
@@ -15,6 +16,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import zscore
 import numpy as np
 import argparse
+from tabulate import tabulate
 
 # Get the token from the environment variable
 AIPROXY_TOKEN = os.getenv("AIPROXY_TOKEN")
