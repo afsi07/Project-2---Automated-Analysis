@@ -16,11 +16,9 @@ import matplotlib.pyplot as plt
 from scipy.stats import zscore
 import numpy as np
 import argparse
-from tabulate import tabulate
 
 # Get the token from the environment variable
 AIPROXY_TOKEN = os.getenv("AIPROXY_TOKEN")
-
 
 # Function to load data and summarize
 def load_and_describe_data(filename):
@@ -33,17 +31,20 @@ def load_and_describe_data(filename):
         summary_stats: Summary statistics of the data.
         missing_values: Missing value counts for each column.
     """
-    # Read the CSV file
-    df = pd.read_csv(filename, encoding='ISO-8859-1')
-    
-    # Basic summary statistics
-    summary_stats = df.describe(include='all').transpose()
-    
-    # Calculate missing values
-    missing_values = df.isnull().sum()
-    
-    return df, summary_stats, missing_values
-
+    try:
+        # Read the CSV file
+        df = pd.read_csv(filename, encoding='ISO-8859-1')
+        
+        # Basic summary statistics
+        summary_stats = df.describe(include='all').transpose()
+        
+        # Calculate missing values
+        missing_values = df.isnull().sum()
+        
+        return df, summary_stats, missing_values
+    except Exception as e:
+        print(f"Error loading or processing data: {e}")
+        return None, None, None
 
 # Function to create the correlation heatmap
 def create_correlation_heatmap(df, output_file):
@@ -53,27 +54,29 @@ def create_correlation_heatmap(df, output_file):
         df (pd.DataFrame): Input DataFrame.
         output_file (str): Path to save the heatmap PNG.
     """
-    # Only numeric columns are considered for correlation
-    numeric_df = df.select_dtypes(include=[np.number])
+    try:
+        # Only numeric columns are considered for correlation
+        numeric_df = df.select_dtypes(include=[np.number])
 
-    if numeric_df.empty:
-        print("No numeric data available to compute correlations.")
-        return
+        if numeric_df.empty:
+            print("No numeric data available to compute correlations.")
+            return
 
-    # Compute correlation matrix
-    corr = numeric_df.corr()
+        # Compute correlation matrix
+        corr = numeric_df.corr()
 
-    # Plotting
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
-    plt.title("Correlation Matrix")
-    plt.tight_layout()
+        # Plotting
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
+        plt.title("Correlation Matrix")
+        plt.tight_layout()
 
-    # Save the heatmap as PNG
-    plt.savefig(output_file)
-    plt.close()
-    print(f"Saved Correlation Heatmap to {output_file}")
-
+        # Save the heatmap as PNG
+        plt.savefig(output_file)
+        plt.close()
+        print(f"Saved Correlation Heatmap to {output_file}")
+    except Exception as e:
+        print(f"Error creating correlation heatmap: {e}")
 
 # Function to create missing values bar plot
 def create_missing_value_barplot(df, output_file):
@@ -83,24 +86,26 @@ def create_missing_value_barplot(df, output_file):
         df (pd.DataFrame): Input DataFrame.
         output_file (str): Output file path for saving the bar plot.
     """
-    # Calculate missing values for each column
-    missing_counts = df.isnull().sum()
-    missing_counts = missing_counts[missing_counts > 0]  # Filter to show only columns with missing values
+    try:
+        # Calculate missing values for each column
+        missing_counts = df.isnull().sum()
+        missing_counts = missing_counts[missing_counts > 0]  # Filter to show only columns with missing values
 
-    # Create the barplot
-    plt.figure(figsize=(12, 6))
-    sns.barplot(x=missing_counts.index, y=missing_counts.values, hue=missing_counts.index, palette="viridis", legend=False)
-    plt.xticks(rotation=45)
-    plt.xlabel("Columns")
-    plt.ylabel("Number of Missing Values")
-    plt.title("Number of Missing Values by Column")
-    plt.tight_layout()
+        # Create the barplot
+        plt.figure(figsize=(12, 6))
+        sns.barplot(x=missing_counts.index, y=missing_counts.values, hue=missing_counts.index, palette="viridis", legend=False)
+        plt.xticks(rotation=45)
+        plt.xlabel("Columns")
+        plt.ylabel("Number of Missing Values")
+        plt.title("Number of Missing Values by Column")
+        plt.tight_layout()
 
-    # Save the barplot as PNG
-    plt.savefig(output_file)
-    plt.close()
-    print(f"Saved Missing Values Bar Plot to {output_file}")
-
+        # Save the barplot as PNG
+        plt.savefig(output_file)
+        plt.close()
+        print(f"Saved Missing Values Bar Plot to {output_file}")
+    except Exception as e:
+        print(f"Error creating missing value bar plot: {e}")
 
 # Function to detect outliers using Z-score
 def detect_outliers(df):
@@ -111,19 +116,22 @@ def detect_outliers(df):
     Returns:
         DataFrame of detected outliers.
     """
-    # Select only numeric columns for analysis
-    numeric_df = df.select_dtypes(include=[np.number])
+    try:
+        # Select only numeric columns for analysis
+        numeric_df = df.select_dtypes(include=[np.number])
 
-    if numeric_df.empty:
-        print("No numeric columns to analyze for outliers.")
+        if numeric_df.empty:
+            print("No numeric columns to analyze for outliers.")
+            return None
+
+        # Apply Z-score
+        df_zscore = numeric_df.apply(zscore, axis=0)
+        outliers = (df_zscore > 3).sum(axis=0)
+
+        return outliers
+    except Exception as e:
+        print(f"Error detecting outliers: {e}")
         return None
-
-    # Apply Z-score
-    df_zscore = numeric_df.apply(zscore, axis=0)
-    outliers = (df_zscore > 3).sum(axis=0)
-
-    return outliers
-
 
 # Create the narrative to save to the README.md
 def create_narrative(df, summary_stats, missing_values, correlation_heatmap_path, missing_values_barplot_path, dataset_name):
@@ -177,7 +185,6 @@ def create_narrative(df, summary_stats, missing_values, correlation_heatmap_path
 
     return narrative
 
-
 # Main Analysis Function
 def run_analysis(filename):
     """
@@ -193,6 +200,10 @@ def run_analysis(filename):
     
     # Load data and compute basic information
     df, summary_stats, missing_values = load_and_describe_data(filename)
+
+    if df is None:
+        print("Error: Failed to load or process the dataset.")
+        return
 
     # Create visualizations
     correlation_heatmap_path = os.path.join(dataset_name, "correlation_matrix.png")
@@ -210,8 +221,7 @@ def run_analysis(filename):
     with open(os.path.join(dataset_name, "README.md"), "w") as f:
         f.write(narrative)
     
-    print("Analysis and visualizations complete.")
-
+    print("Analysis and visualizations complete. Narrative saved to README.md.")
 
 # Entry point
 if __name__ == "__main__":
