@@ -16,6 +16,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Get the token from the environment variable
+AIPROXY_TOKEN = os.getenv("AIPROXY_TOKEN")
+
 # Function to create directories if they do not exist
 def ensure_directories_exist(directory):
     if not os.path.exists(directory):
