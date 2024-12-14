@@ -1,4 +1,5 @@
 # /// script
+# requires-python = ">=3.11"
 # dependencies = [
 #   "httpx",
 #   "pandas",
@@ -9,6 +10,7 @@
 #   "tabulate"
 # ]
 # ///
+
 import os
 import argparse
 import pandas as pd
@@ -16,9 +18,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Get the token from the environment variable
-AIPROXY_TOKEN = os.getenv("AIPROXY_TOKEN")
-
+# Environment variable for AI Proxy token
+AIPROXY_TOKEN = os.environ["AIPROXY_TOKEN"]
+if not AIPROXY_TOKEN:
+    raise EnvironmentError("AIPROXY_TOKEN is not set. Please set it before running the script.")
 # Function to create directories if they do not exist
 def ensure_directories_exist(directory):
     if not os.path.exists(directory):
